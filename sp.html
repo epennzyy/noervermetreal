@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistem Pembayaran — Noerzaman</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/boxicons/2.1.4/css/boxicons.min.css">
+<style>
+  :root[data-theme="dark"]{
+    --bg:#0A0E16; --bg-soft:#0D1119; --card:#11151F; --border:#1E2433;
+    --text:#F2F4F8; --text-muted:#8B93A7;
+    --accent:#2F6FED; --accent-soft:rgba(47,111,237,0.14);
+    --gold:#D4A656; --gold-soft:rgba(212,166,86,0.14);
+    --shadow:rgba(0,0,0,0.45);
+  }
+  :root[data-theme="light"]{
+    --bg:#F2F4F8; --bg-soft:#EAEDF3; --card:#FFFFFF; --border:#E1E5ED;
+    --text:#10131C; --text-muted:#5B6376;
+    --accent:#2F6FED; --accent-soft:rgba(47,111,237,0.08);
+    --gold:#B8863F; --gold-soft:rgba(184,134,63,0.10);
+    --shadow:rgba(20,24,38,0.10);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:'DM Sans', sans-serif;
+    min-height:100vh; position:relative; overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    transition:background .35s ease, color .35s ease;
+  }
+  .bg-texture{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:
+      radial-gradient(circle at 20% 10%, var(--accent-soft) 0, transparent 40%),
+      radial-gradient(circle at 85% 85%, var(--gold-soft) 0, transparent 45%),
+      repeating-radial-gradient(circle at 50% 0%, transparent 0, transparent 38px, rgba(127,140,170,0.045) 39px, transparent 40px);
+  }
+  .theme-toggle{
+    position:fixed; top:18px; right:18px; z-index:10;
+    width:40px; height:40px; border-radius:50%;
+    background:var(--card); border:1px solid var(--border); color:var(--text); font-size:18px;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    box-shadow:0 4px 14px var(--shadow);
+  }
+  .theme-toggle:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+  .page{ position:relative; z-index:1; max-width:560px; margin:0 auto; padding:64px 20px 48px; }
+
+  .back-link{
+    display:inline-flex; align-items:center; gap:6px;
+    color:var(--text-muted); text-decoration:none; font-size:14px; font-weight:500;
+    margin-bottom:18px;
+  }
+  .back-link:hover{ color:var(--accent); }
+  .back-link i{ font-size:18px; }
+
+  .doc-card{
+    position:relative; background:var(--card); border:1px solid var(--border);
+    border-radius:22px; box-shadow:0 16px 40px var(--shadow); overflow:hidden;
+  }
+  .doc-header{
+    padding:30px 26px 22px; text-align:center;
+    background:linear-gradient(135deg, var(--accent-soft), transparent 70%);
+    border-bottom:1px dashed var(--border);
+  }
+  .doc-badge{
+    width:46px; height:46px; border-radius:50%; margin:0 auto 14px;
+    background:var(--gold); color:#1a1206;
+    display:flex; align-items:center; justify-content:center; font-size:22px;
+  }
+  .doc-title{ font-family:'Syne', sans-serif; font-weight:800; font-size:22px; }
+  .doc-sub{ color:var(--text-muted); font-size:13.5px; margin-top:6px; }
+  .doc-code{
+    display:inline-block; margin-top:14px;
+    font-family:'JetBrains Mono', monospace; font-size:11.5px; color:var(--text-muted);
+    background:var(--bg-soft); border:1px solid var(--border);
+    padding:5px 10px; border-radius:7px; letter-spacing:.4px;
+  }
+
+  .doc-body{ padding:8px 26px 30px; }
+  .sk-section{ padding:20px 0; border-bottom:1px dashed var(--border); }
+  .sk-section:last-child{ border-bottom:none; padding-bottom:0; }
+  .sk-section-head{ display:flex; align-items:baseline; gap:10px; margin-bottom:10px; }
+  .sk-number{
+    font-family:'JetBrains Mono', monospace; color:var(--accent); font-size:13px; font-weight:500;
+    flex-shrink:0;
+  }
+  .sk-title{ font-family:'Syne', sans-serif; font-weight:700; font-size:16.5px; }
+  .sk-section p{ color:var(--text-muted); font-size:14px; line-height:1.7; margin-bottom:8px; }
+  .sk-section p:last-child{ margin-bottom:0; }
+  .sk-section ul{ list-style:none; display:flex; flex-direction:column; gap:7px; margin-top:4px; }
+  .sk-section li{
+    color:var(--text-muted); font-size:14px; line-height:1.6;
+    display:flex; gap:9px; align-items:flex-start;
+  }
+  .sk-section li i{ color:var(--accent); font-size:16px; flex-shrink:0; margin-top:2px; }
+
+  .example-box{
+    display:flex; flex-direction:column; gap:6px; margin-top:12px;
+    background:var(--bg-soft); border:1px dashed var(--border); border-radius:12px;
+    padding:12px 14px;
+  }
+  .example-row{
+    display:flex; justify-content:space-between; gap:10px;
+    font-family:'JetBrains Mono', monospace; font-size:12.5px;
+  }
+  .example-row span:first-child{ color:var(--text-muted); }
+  .example-row span:last-child{ color:var(--text); font-weight:500; }
+
+  .method-card{
+    border:1px solid var(--border); border-radius:16px; margin-bottom:16px; overflow:hidden;
+  }
+  .method-card:last-child{ margin-bottom:0; }
+  .method-head{ padding:16px 18px; display:flex; align-items:center; gap:12px; }
+  .method-head.method-a{ background:var(--accent-soft); }
+  .method-head.method-b{ background:var(--gold-soft); }
+  .method-icon{
+    width:38px; height:38px; border-radius:10px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:18px;
+  }
+  .method-icon.a{ background:var(--accent); color:#fff; }
+  .method-icon.b{ background:var(--gold); color:#1a1206; }
+  .method-title{ font-family:'Syne', sans-serif; font-weight:700; font-size:15.5px; }
+  .method-desc{ font-size:12px; color:var(--text-muted); margin-top:2px; }
+  .method-list{
+    list-style:none; margin:0; padding:16px 18px;
+    display:flex; flex-direction:column; gap:11px;
+  }
+  .method-list li{
+    display:flex; gap:10px; font-size:13.5px; color:var(--text-muted); line-height:1.55;
+  }
+  .method-step{
+    font-family:'JetBrains Mono', monospace; color:var(--accent);
+    font-size:12px; flex-shrink:0; width:18px; padding-top:1px;
+  }
+  .method-list.b .method-step{ color:var(--gold); }
+
+  .doc-footer{
+    text-align:center; padding:22px 24px 0; margin-top:6px;
+  }
+  .contact-cta{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--accent); color:#fff; text-decoration:none;
+    font-weight:600; font-size:14px; padding:12px 22px; border-radius:14px;
+    box-shadow:0 10px 24px var(--accent-soft);
+  }
+  .contact-cta:hover{ filter:brightness(1.08); }
+
+  .page-footer{ text-align:center; color:var(--text-muted); font-size:12px; margin-top:28px; }
+
+  @media (prefers-reduced-motion: reduce){ * { transition:none !important; } }
+</style>
+</head>
+<body data-theme="dark">
+  <div class="bg-texture"></div>
+  <button class="theme-toggle" id="themeToggle" aria-label="Ganti tema terang/gelap">
+    <i class='bx bx-moon'></i>
+  </button>
+
+  <main class="page">
+    <a class="back-link" href="noerzaman-linkhub.html"><i class='bx bx-arrow-back'></i> Kembali ke Link Hub</a>
+
+    <section class="doc-card">
+      <div class="doc-header">
+        <div class="doc-badge"><i class='bx bx-wallet'></i></div>
+        <h1 class="doc-title">Sistem Pembayaran</h1>
+        <p class="doc-sub">Terdapat 2 pilihan metode pencairan dana, pilih salah satunya</p>
+        <span class="doc-code">ID# NZ-SP-2026</span>
+      </div>
+
+      <div class="doc-body">
+
+        <div class="method-card">
+          <div class="method-head method-a">
+            <span class="method-icon a"><i class='bx bx-wallet'></i></span>
+            <div>
+              <div class="method-title">1x Pencairan</div>
+              <div class="method-desc">Dana dicairkan sekaligus dalam satu kali transfer</div>
+            </div>
+          </div>
+          <ol class="method-list a">
+            <li><span class="method-step">01</span>Wajib melakukan video call minimal 1 menit.</li>
+            <li><span class="method-step">02</span>Detail rekening dikirim ke grup jika menggunakan jasa rekber.</li>
+            <li><span class="method-step">03</span>Detail rekening dikirim ke buyer jika menggunakan metode direct.</li>
+            <li><span class="method-step">04</span>Wajib patah kartu jika bukan nokos.</li>
+            <li><span class="method-step">05</span>Wajib menyertakan bukti gacha atau beli jika menjual vermet nokos.</li>
+          </ol>
+        </div>
+
+        <div class="method-card">
+          <div class="method-head method-b">
+            <span class="method-icon b"><i class='bx bx-coin-stack'></i></span>
+            <div>
+              <div class="method-title">2x Pencairan</div>
+              <div class="method-desc">Dana dicairkan bertahap dalam dua kali transfer</div>
+            </div>
+          </div>
+          <ol class="method-list b">
+            <li><span class="method-step">01</span>Seller akan menerima pembayaran sebesar 50% dari nominal harga setelah melakukan patah kartu.</li>
+            <li><span class="method-step">02</span>Seller akan menerima sisa pembayaran setelah 24 jam.</li>
+            <li><span class="method-step">03</span>Wajib melakukan video call minimal 1 menit.</li>
+            <li><span class="method-step">04</span>Detail rekening dikirim ke grup jika menggunakan jasa rekber.</li>
+            <li><span class="method-step">05</span>Detail rekening dikirim ke buyer jika menggunakan metode direct.</li>
+          </ol>
+        </div>
+
+      </div>
+
+      <div class="doc-footer">
+        <a class="contact-cta" href="https://wa.me/628965429154" target="_blank" rel="noopener">
+          <i class='bx bxl-whatsapp'></i> Hubungi Admin
+        </a>
+      </div>
+    </section>
+
+    <p class="page-footer">© Noerzaman. All rights reserved.</p>
+  </main>
+
+  <script>
+    const root = document.documentElement;
+    const btn = document.getElementById('themeToggle');
+    btn.addEventListener('click', () => {
+      const current = root.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      btn.innerHTML = next === 'dark' ? "<i class='bx bx-moon'></i>" : "<i class='bx bx-sun'></i>";
+    });
+  </script>
+</body>
+</html>
